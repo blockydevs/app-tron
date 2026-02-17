@@ -59,17 +59,16 @@ class TestTRX():
     def trc20_calldata_transfer_hex(self, to_hex: str, amount: int) -> bytes:
         selector = "a9059cbb"
         amount_hex = hex(amount)[2:]
-        return bytes.fromhex(
-            selector + to_hex.rjust(64, "0") + amount_hex.rjust(64, "0")
-        )
-    
-    def trc20_calldata_approve_hex(self, spender_hex: str, amount: int) -> bytes:
+        return bytes.fromhex(selector + to_hex.rjust(64, "0") +
+                             amount_hex.rjust(64, "0"))
+
+    def trc20_calldata_approve_hex(self, spender_hex: str,
+                                   amount: int) -> bytes:
         selector = "095ea7b3"
         amount_hex = hex(amount)[2:]
-        return bytes.fromhex(
-            selector + spender_hex.rjust(64, "0") + amount_hex.rjust(64, "0")
-        )
-    
+        return bytes.fromhex(selector + spender_hex.rjust(64, "0") +
+                             amount_hex.rjust(64, "0"))
+
     def test_trx_get_version(self, backend, firmware, navigator):
         client = TronClient(backend, firmware, navigator)
         resp = client.getVersion()
@@ -459,7 +458,7 @@ class TestTRX():
                     client.address_hex("TBoTZcARzWVgnNuB9SyE3S5g1RwsXoQL16")),
                 data=self.trc20_calldata_transfer_hex(
                     "364b03e0815687edaf90b81ff58e496dea7383d7", 1000000)))
-        self.sign_and_validate(client, firmware, 0, tx) 
+        self.sign_and_validate(client, firmware, 0, tx)
 
     def test_trx_trc20_approve(self, backend, firmware, navigator):
         client = TronClient(backend, firmware, navigator)
@@ -610,7 +609,7 @@ class TestTRX():
                     client.address_hex("TVGLX58e3uBx1fmmwLCENkrgKqmpEjhtfG")),
                 data=self.trc20_calldata_transfer_hex(
                     "364b03e0815687edaf90b81ff58e496dea7383d7", 1000000)))
-              
+
         self.sign_and_validate(client, firmware, 0, tx, warning_approve=True)
 
     def test_trx_freezeV2_balance(self, backend, firmware, navigator):
