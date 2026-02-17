@@ -178,6 +178,30 @@ class TestTRX():
                                             second_token_balance=10000000))
         self.sign_and_validate(client, firmware, 1, tx)
 
+    def test_trx_exchange_create_one_wei(self, backend, firmware, navigator):
+        client = TronClient(backend, firmware, navigator)
+        tx = client.packContract(
+            tron.Transaction.Contract.ExchangeCreateContract,
+            contract.ExchangeCreateContract(owner_address=bytes.fromhex(
+                client.getAccount(0)['addressHex']),
+                                            first_token_id="_".encode(),
+                                            first_token_balance=1,
+                                            second_token_id="1000166".encode(),
+                                            second_token_balance=1))
+        self.sign_and_validate(client, firmware, 1, tx)
+
+    def test_trx_send_one_wei(self, backend, firmware, navigator):
+        client = TronClient(backend, firmware, navigator)
+        tx = client.packContract(
+            tron.Transaction.Contract.TransferContract,
+            contract.TransferContract(
+                owner_address=bytes.fromhex(
+                    client.getAccount(0)['addressHex']),
+                to_address=bytes.fromhex(
+                    client.address_hex("TBoTZcARzWVgnNuB9SyE3S5g1RwsXoQL16")),
+                amount=1))
+        self.sign_and_validate(client, firmware, 0, tx)
+
     def test_trx_exchange_create_with_token_name(self, backend, configuration,
                                                  firmware, navigator):
         client = TronClient(backend, firmware, navigator)
