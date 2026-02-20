@@ -56,6 +56,19 @@ class TestTRX():
         assert check_tx_signature(tx, resp.data[0:65],
                                   client.getAccount(0)['publicKey'][2:])
 
+    def trc20_calldata_transfer_hex(self, to_hex: str, amount: int) -> bytes:
+        selector = "a9059cbb"
+        amount_hex = hex(amount)[2:]
+        return bytes.fromhex(selector + to_hex.rjust(64, "0") +
+                             amount_hex.rjust(64, "0"))
+
+    def trc20_calldata_approve_hex(self, spender_hex: str,
+                                   amount: int) -> bytes:
+        selector = "095ea7b3"
+        amount_hex = hex(amount)[2:]
+        return bytes.fromhex(selector + spender_hex.rjust(64, "0") +
+                             amount_hex.rjust(64, "0"))
+
     def test_trx_get_version(self, backend, firmware, navigator):
         client = TronClient(backend, firmware, navigator)
         resp = client.getVersion()
@@ -443,9 +456,38 @@ class TestTRX():
                     client.getAccount(0)['addressHex']),
                 contract_address=bytes.fromhex(
                     client.address_hex("TBoTZcARzWVgnNuB9SyE3S5g1RwsXoQL16")),
-                data=bytes.fromhex(
-                    "a9059cbb000000000000000000000000364b03e0815687edaf90b81ff58e496dea7383d700000000000000000000000000000000000000000000000000000000000f4240"
-                )))
+                data=self.trc20_calldata_transfer_hex(
+                    "364b03e0815687edaf90b81ff58e496dea7383d7", 1000000)))
+        self.sign_and_validate(client, firmware, 0, tx)
+
+    def test_trx_trc20_send_decimals_0(self, backend, firmware, navigator):
+        client = TronClient(backend, firmware, navigator)
+        #AIT 0 decimals
+        tx = client.packContract(
+            tron.Transaction.Contract.TriggerSmartContract,
+            contract.TriggerSmartContract(
+                owner_address=bytes.fromhex(
+                    client.getAccount(0)['addressHex']),
+                contract_address=bytes.fromhex(
+                    "41D3998A3D9510E35BF483B14F8C516493B9F453BA"),
+                data=self.trc20_calldata_transfer_hex(
+                    "364b03e0815687edaf90b81ff58e496dea7383d7", 10**18),
+            ))
+        self.sign_and_validate(client, firmware, 0, tx)
+
+    def test_trx_trc20_send_decimals_18(self, backend, firmware, navigator):
+        client = TronClient(backend, firmware, navigator)
+        #ZTR 18 decimals
+        tx = client.packContract(
+            tron.Transaction.Contract.TriggerSmartContract,
+            contract.TriggerSmartContract(
+                owner_address=bytes.fromhex(
+                    client.getAccount(0)['addressHex']),
+                contract_address=bytes.fromhex(
+                    "41B88AECB926A854C1A180E5E2949E0123BDDCA499"),
+                data=self.trc20_calldata_transfer_hex(
+                    "364b03e0815687edaf90b81ff58e496dea7383d7", 1),
+            ))
         self.sign_and_validate(client, firmware, 0, tx)
 
     def test_trx_trc20_approve(self, backend, firmware, navigator):
@@ -457,9 +499,8 @@ class TestTRX():
                     client.getAccount(0)['addressHex']),
                 contract_address=bytes.fromhex(
                     client.address_hex("TBoTZcARzWVgnNuB9SyE3S5g1RwsXoQL16")),
-                data=bytes.fromhex(
-                    "095ea7b3000000000000000000000000364b03e0815687edaf90b81ff58e496dea7383d700000000000000000000000000000000000000000000000000000000000f4240"
-                )))
+                data=self.trc20_calldata_approve_hex(
+                    "364b03e0815687edaf90b81ff58e496dea7383d7", 1000000)))
         self.sign_and_validate(client, firmware, 0, tx)
 
     def test_trx_sign_message(self, backend, firmware, navigator):
@@ -596,9 +637,9 @@ class TestTRX():
                     client.getAccount(0)['addressHex']),
                 contract_address=bytes.fromhex(
                     client.address_hex("TVGLX58e3uBx1fmmwLCENkrgKqmpEjhtfG")),
-                data=bytes.fromhex(
-                    "a9059cbb000000000000000000000000364b03e0815687edaf90b81ff58e496dea7383d700000000000000000000000000000000000000000000000000000000000f4240"
-                )))
+                data=self.trc20_calldata_transfer_hex(
+                    "364b03e0815687edaf90b81ff58e496dea7383d7", 1000000)))
+
         self.sign_and_validate(client, firmware, 0, tx, warning_approve=True)
 
     def test_trx_freezeV2_balance(self, backend, firmware, navigator):
